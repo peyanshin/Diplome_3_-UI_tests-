@@ -2,7 +2,7 @@ import allure
 
 from curl import *
 from pages.order_page import OrderPage
-from data import *
+from data import Credentials
 
 
 class TestOrdersListPageButtons:
@@ -16,7 +16,8 @@ class TestOrdersListPageButtons:
         with allure.step("Оформить заказ"):
             order_page.make_order()
         with allure.step("Найти на ленте заказов наш заказ в разделе «В работе»"):
-            order_page.should_have_order_in_work_section()
+            actual_text = order_page.get_order_in_work_text()
+            assert order_page.order_number in actual_text, (f"Номер заказа {order_page.order_number} не найден в разделе 'В работе'. "f"Фактическое значение: {actual_text}")
 
     @allure.title("Проверка изменения счётчиков заказов")
     @allure.description("Проверка изменения счётчика «Выполнено за всё время»")
@@ -29,7 +30,8 @@ class TestOrdersListPageButtons:
         with allure.step("Оформить заказ"):
             order_page.make_order()
         with allure.step("Убедиться, что счётчик заказов «Выполнено за всё время» изменился (соответствует номеру нашего заказа)"):
-            order_page.should_have_correct_all_orders_counter()
+            actual_text = order_page.get_all_orders_counter_text()
+            assert order_page.order_number == actual_text, (f"Номер заказа {order_page.order_number} не совпадает с извлечённым из элемента номером: {actual_text}.")
 
     @allure.description("Проверка изменения счётчика «Выполнено за сегодня»")
     def test_today_orders_counter(self, driver):
@@ -43,4 +45,7 @@ class TestOrdersListPageButtons:
         with allure.step("Оформить заказ"):
             order_page.make_order()
         with allure.step("Убедиться, что счётчик заказов «Выполнено за сегодня» изменился (стал больше на единицу)"):
-            order_page.should_have_correct_today_orders_counter()
+            actual_text = order_page.get_today_orders_counter_text()
+            expected_value = int(order_page.today_orders) + 1
+            actual_value = int(actual_text)
+            assert actual_value == expected_value, (f"Счётчик заказов за сегодня {actual_value} не соответствует ожидаемому {expected_value}")
