@@ -7,9 +7,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException
 
 import re
-import time
-
-from data import Credentials
 
 TIMEOUT = 20
 
@@ -21,31 +18,26 @@ class BasePage:
     def url(self):
         return self.driver.current_url
 
-
     @allure.step("Найти элемент")
     def find_element(self, locator, timeout=10):
         wait = WebDriverWait(self.driver, timeout)
         return wait.until(EC.presence_of_element_located(locator))
-
 
     @allure.step("Дождаться видимости элемента")
     def see_element(self, locator, timeout=10):
         wait = WebDriverWait(self.driver, timeout)
         return wait.until(EC.visibility_of_element_located(locator))
 
-
     @allure.step("Дождаться исчезновения элемента")
     def hide_element(self, locator, timeout=10):
         wait = WebDriverWait(self.driver, timeout)
         return wait.until(EC.invisibility_of_element_located(locator))
-
 
     @allure.step("Подождать видимости элемента")
     def wait_for_element(self, locator, timeout=TIMEOUT):
         if isinstance(locator, str):
             locator = (By.XPATH, locator)
         return WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(locator))
-
 
     @allure.step("Подождать кликабельности элемента")
     def wait_and_send_keys(self, locator, text, timeout=10):
@@ -54,11 +46,9 @@ class BasePage:
             element.clear()
             element.send_keys(text)
         except StaleElementReferenceException:
-            time.sleep(1)
             element = self.wait_for_element(locator, timeout)
             element.clear()
             element.send_keys(text)
-
 
     @allure.step("Кликнуть на элемент")
     def click_on_element(self, locator):
@@ -69,12 +59,10 @@ class BasePage:
     def get_current_url(self):
         return self.driver.current_url
 
-
     @allure.step("Проверить, что URL содержит подстроку")
     def assert_url_contains(self, expected_substring):
         current_url = self.get_current_url()
         assert expected_substring in current_url, (f"Ожидалось, что URL содержит '{expected_substring}', но URL: '{current_url}'")
-
 
     @allure.step("Перетащить ингредиент в корзину")
     def drag_and_drop_element(self, source_locator, target_locator, timeout=10):
@@ -82,7 +70,6 @@ class BasePage:
         target = self.wait_for_element(target_locator, timeout)
         actions = ActionChains(self.driver)
         actions.drag_and_drop(source, target).perform()
-
 
     @allure.step("Подождать появления шестизначного номера заказа")
     def wait_for_six_digit_value(self, locator, timeout=10):
@@ -95,13 +82,7 @@ class BasePage:
         )
         return six_digit_text
 
-
     @allure.step("Получить текст элемента")
     def get_text_on_element(self, locator, timeout=TIMEOUT):
         element = self.wait_for_element(locator, timeout)
         return element.text
-
-
-    @allure.step("Получить учётные данные для входа")
-    def get_credentials(self):
-        return Credentials.email, Credentials.password
