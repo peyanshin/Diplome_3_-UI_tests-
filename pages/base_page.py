@@ -59,11 +59,6 @@ class BasePage:
     def get_current_url(self):
         return self.driver.current_url
 
-    @allure.step("Проверить, что URL содержит подстроку")
-    def assert_url_contains(self, expected_substring):
-        current_url = self.get_current_url()
-        assert expected_substring in current_url, (f"Ожидалось, что URL содержит '{expected_substring}', но URL: '{current_url}'")
-
     @allure.step("Перетащить ингредиент в корзину")
     def drag_and_drop_element(self, source_locator, target_locator, timeout=10):
         source = self.wait_for_element(source_locator, timeout)
