@@ -9,7 +9,6 @@ from locators.orders_list_page_locators import OrdersListPageLocators
 from locators.create_order_page_locators import CreateOrderPageLocators
 from locators.registration_page_locators import RegistrationPageLocators
 
-import time
 
 class OrderPage(BasePage):
     def __init__(self, driver):
@@ -37,8 +36,7 @@ class OrderPage(BasePage):
         self.click_on_element(MainPageLocators.ORD_LIST_BUTTON)
 
     @allure.step("Войти в аккаунт")
-    def login(self):
-        email, password = self.get_credentials()
+    def login(self, email, password):
         self.click_on_element(MainPageLocators.PER_ACC_BUTTON)
         self.wait_and_send_keys(PrivatePageLocators.LOG_EMAIL, email)
         self.wait_and_send_keys(PrivatePageLocators.LOG_PASSWORD, password)
@@ -64,22 +62,17 @@ class OrderPage(BasePage):
         self.click_on_element(MainPageLocators.CON_BUTTON)
         return self.today_orders
 
-    @allure.step("Проверить, что номер заказа присутствует в разделе 'В работе'")
-    def should_have_order_in_work_section(self):
+    @allure.step("Получить текст элемента с номером заказа в разделе 'В работе'")
+    def get_order_in_work_text(self):
         element = self.wait_for_element(OrdersListPageLocators.ORD_NUM_WORK_TEXT)
-        actual_text = element.text
-        assert self.order_number in actual_text, (f"Номер заказа {self.order_number} не найден в разделе 'В работе'. "f"!Фактическое значение: {actual_text}")
+        return element.text
 
-    @allure.step("Проверить, что значение счётчика всех заказов соответствует ожидаемому")
-    def should_have_correct_all_orders_counter(self):
+    @allure.step("Получить текущий номер заказа из счётчика «Выполнено за всё время»")
+    def get_all_orders_counter_text(self):
         element = self.wait_for_element(OrdersListPageLocators.ORD_NUM_TEXT)
-        actual_text = element.text.strip()
-        assert self.order_number == actual_text, (f"Номер заказа {self.order_number} не совпадает с извлечённым из элемента номером: {actual_text}.")
+        return element.text.strip()
 
-    @allure.step("Проверить, что значение счётчика заказов за сегодня соответствует ожидаемому")
-    def should_have_correct_today_orders_counter(self):
+    @allure.step("Получить текущее значение счётчика заказов за сегодня")
+    def get_today_orders_counter_text(self):
         element = self.wait_for_element(OrdersListPageLocators.ORD_DAY_NUM_TEXT)
-        actual_text = element.text.strip()
-        expected_value = int(self.today_orders) + 1
-        actual_value = int(actual_text)
-        assert actual_value == expected_value, (f"Счётчик заказов за сегодня {actual_value} не соответствует ожидаемому {expected_value})")
+        return element.text.strip()
